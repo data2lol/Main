@@ -1,0 +1,50 @@
+给一系列的任务，(start_time, end_time), 每个时间点上，如果只有一个任务开始，这个必须尼克做；
+如果尼克在工作中，则不需要做；如果有多个任务开始，尼克可以挑选一个做；求最大偷懒时间
+
+顺序dp有一些问题无法解决，在最后求值的时候并不知道最后一个任务结束在哪个时间点，最后结束的并不一定是最优解，
+而先于最后一个结束的可能有很多任务，所以无法判断
+但是反向DP就不一样，因为题目的限制条件空闲，有任务必须开始，所以最早开始的那个任务是一定要做的，那么反向DP的话，结束点一定是最早的点。
+
+    static class work implements Comparable<work>{
+    	int s,e,l;
+    	public work(int a, int b){
+    		s=a;l=b;e=a+b-1;
+    	}
+		public int compareTo(work t) {
+			if(this.e==t.e){
+				return this.s-t.s;
+			}else{
+				return this.e-t.e;
+			}
+		}
+    }
+    static class Task{
+    	int n,k;
+    	work arr[];
+    	int dp[];
+        public void solve(InputReader in, PrintWriter out) {
+        	n = in.nextInt();
+        	k = in.nextInt();
+        	dp = new int[n+1];
+        	Arrays.fill(dp, 99999999);
+        	arr = new work[k];
+        	int start = 9999999;
+        	for(int i=0;i<k;i++){
+        		arr[i] = new work(in.nextInt(), in.nextInt());
+        		if(arr[i].s<start) start = arr[i].s;
+        	}
+        	Arrays.sort(arr);  
+        	for(int i=k-1;i>=0;i--){
+        		int j = arr[i].e+1;
+        		while(j<=n&&dp[j]>=99999999){
+        			j++;
+        		}
+        		if(j>n){
+        			dp[arr[i].s] = Math.min(dp[arr[i].s], arr[i].l);
+        		}else{
+        			dp[arr[i].s] = Math.min(dp[arr[i].s], dp[j]+arr[i].l);
+        		}
+        	}
+        	System.out.println(n-dp[start]);
+        }
+    }
