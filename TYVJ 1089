@@ -1,0 +1,39 @@
+ 现有N个物品，第i个物品有两个属性A_i和B_i。在其中选取若干个物品，使得sum{A_i + B_i}最大，同时sum{A_i}，sum{B_i}均非负（sum{}表示求和）。
+ 就是二维的物品，在保证2维都是正值的情况下，求最大的和。
+ 
+ 枚举一个方向上的所有解空间，取A+B最大的作为最优解。由于有负数，所以读入的时候都偏移一个值。
+     static class Task implements Runnable{
+    	item arr[];
+    	int n;
+        public void solve(InputReader in, PrintWriter out) throws IOException {
+        	n = in.nextInt();
+        	arr = new item[n];
+        	int f=1000;
+        	for(int i=0;i<n;i++){
+        		arr[i] = new item(in.nextInt()+f, in.nextInt());
+        	}
+        	int dp[][] = new int[2*n*f+1][2];
+        	for(int i=1;i<=2*n*f;i++){
+        		dp[i][0] = Integer.MIN_VALUE;
+        	}
+        	for(int i=0;i<n;i++){
+        		for(int j=2*n*f;j>=arr[i].a;j--){
+        			if(dp[j-arr[i].a][0]!=Integer.MIN_VALUE){
+        				int a = j+dp[j][0]-dp[j][1]*f;
+        				int b = j+dp[j-arr[i].a][0]+arr[i].b-(dp[j-arr[i].a][1]+1)*f;
+        				if(b>a){
+        					dp[j][0] = dp[j-arr[i].a][0]+arr[i].b;
+        					dp[j][1] = dp[j-arr[i].a][1]+1;
+        				}
+        			}
+        		}
+        	}
+        	int max = Integer.MIN_VALUE;
+        	for(int i=1;i<=2*n*f;i++){
+        		int v = i-dp[i][1]*f;
+        		if(v+dp[i][0]>max&&v>=0&&dp[i][0]>=0){
+        			max = v+dp[i][0];
+        		}
+        	}
+        	System.out.println(max);        	
+        } 
