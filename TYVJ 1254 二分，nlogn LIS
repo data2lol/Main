@@ -1,0 +1,37 @@
+就是求最长上升子序列，但是N=30000 所以N平方铁定过不去
+
+复习了一下单调队列的LIS
+单调队列的好处就是搜索快，logN的复杂度就能完成搜索，这个队列其实维护的就是一个“最优化”的最长上升序列
+比如说目前队列是 1， 2， 5， 8
+那么进来一个4， 这时候把需要把5替换成4使得队列变成 1， 2， 4， 8
+这个贪心的保存法是为了能尽可能多的存，比如后面可能需要把8替换成7， 然后再进来一个8， 队列就成了1， 2， 4， 7， 8
+
+这种贪心的保存法维护的并不是一个真实的队列. 比如前面说的把5换成4后，如果后面没有任何变化，那么其实1， 2， 4， 8 并不是一个真正的
+上升序列，很明显4是在8后面进来的。这个算法只能求得一个最优的长度，以及最后一个值必定是正确的。
+
+二分的代码
+        public void solve(InputReader in, PrintWriter out) throws IOException {        	
+        	n = in.nextInt();
+        	arr = new int[n];
+        	int stack[] = new int[n];
+        	int p = 0;        	
+        	for(int i=0;i<n;i++){
+        		arr[i] = in.nextInt();
+        		if(i==0) stack[i] = arr[i];
+        		else{
+        			if(arr[i]>=stack[p]){
+        				stack[++p] = arr[i];
+        			}else{
+        				int l=0, r=p, mid=0;
+        				while(l<=r){
+        					mid = (l+r)/2;
+        					if(stack[mid]>arr[i]){
+        						r=mid-1;
+        					}else{
+        						l=mid+1;
+        					}
+        				}
+        				stack[l] = arr[i];
+        			}
+        		}
+        	}
