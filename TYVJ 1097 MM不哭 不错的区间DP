@@ -1,0 +1,61 @@
+题意：
+假设有一个X轴， X轴上有N个点，起始点是1到N之间的任意一个
+每个单位时刻你只能向左向右任意走一个单位长度。
+N个点每单位时刻都消耗能量，走到一个点上，那么这个点在之后的时间就不会再消耗了。
+要求关闭所有点的消耗这个过程中最少消耗多少。
+
+思路：
+这个DP我想了挺久，状态空间在我看来不是很明显。
+但是相通后其实发现还是很明显的。只不过一些隐含的条件要推出来先。
+首先，在任意点上出发只有两种情况，向左或者向右
+其次，要得出重要结论： 在区间 [a,b]上取得最小值的时候一点是终结于a点或者b点
+因为如果终结于中间点上的话，那么一定有一些点被重复走过了，那么消耗的时间就不是最小
+
+所以，dp[i][j][0] 表示i,j区间结束于i点的最小值; dp[i][j][1] 表示结束于j点时的最小
+[i,j]就可以由[i+1,j]; [i][j-1]推出来
+
+    static class Task{
+    	int n;
+    	mm arr[];
+    	int p;
+        public void solve(InputReader in, PrintWriter out) throws IOException {        	
+        	n = in.nextInt();
+        	p = in.nextInt();
+        	p--;
+        	arr = new mm[n];
+        	int tot_cost = 0;
+        	for(int i=0;i<n;i++){
+        		arr[i] = new mm(in.nextInt(), in.nextInt());
+        		tot_cost+=arr[i].cost;
+        	}
+        	Arrays.sort(arr);
+        	long r_cost[][] = new long[n][n];
+        	for(int gap=0;gap<n;gap++){
+        		for(int i=0;i+gap<n;i++){
+        			int j=i+gap;
+        			if(i==j) r_cost[i][j] = arr[i].cost;
+        			else r_cost[i][j] = r_cost[i][j-1]+arr[j].cost;
+        		}
+        	}
+        	long dp[][][] = new long[n][n][2];
+        	for(int i=0;i<n;i++){
+        		for(int j=0;j<n;j++){
+        			Arrays.fill(dp[i][j], Long.MAX_VALUE);
+        		}
+        	}
+        	for(int gap=0;gap<n;gap++){
+        		for(int i=0;i+gap<n;i++){
+        			int j=i+gap;
+        			if(i==j) dp[i][j][0] = dp[i][j][1] = Math.abs(arr[p].pos-arr[i].pos)*tot_cost;
+        			else{
+        				dp[i][j][0] = Math.min(dp[i+1][j][0]+(arr[i+1].pos-arr[i].pos)*(tot_cost-r_cost[i+1][j]), dp[i][j][0]);
+        				dp[i][j][0] = Math.min(dp[i+1][j][1]+(arr[j].pos-arr[i].pos)*(tot_cost-r_cost[i+1][j]), dp[i][j][0]);        				
+        				dp[i][j][1] = Math.min(dp[i][j-1][0]+(arr[j].pos-arr[i].pos)*(tot_cost-r_cost[i][j-1]), dp[i][j][1]);
+        				dp[i][j][1] = Math.min(dp[i][j-1][1]+(arr[j].pos-arr[j-1].pos)*(tot_cost-r_cost[i][j-1]), dp[i][j][1]);
+        			}
+        		}
+        	}
+        	System.out.println(Math.min(dp[0][n-1][0], dp[0][n-1][1]));
+        	out.close();
+        }
+    }
