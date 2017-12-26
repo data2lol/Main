@@ -1,0 +1,19 @@
+给一棵平衡二叉树，求有多少个节点
+
+题解： 所以O(N)的算法是没意义的，题目出出来不是考普通递归
+正确的解法是log(n)平方的复杂度
+每一次判断左右子树的高度是否相同，如果相同，进入右子树；不同则一定是左边更深
+关键来了，进入子树以后，总的节点个数增加 2的h次方， h是高度较低的那一棵子树
+有一个很巧的东西，高度较低的那个子树节点数是2的h次方减一，然后加上当前顶点一个，正好是2的h次方
+
+       int leftH = getHeight(root.left);
+        int rightH = getHeight(root.right);
+        int count = 1;
+        if(leftH == rightH){
+            count += (1<< leftH) - 1;
+            return count + countNodes(root.right);
+        }
+        else if(leftH - rightH == 1){
+             count += (1<< rightH) - 1;
+            return count + countNodes(root.left);
+        }
